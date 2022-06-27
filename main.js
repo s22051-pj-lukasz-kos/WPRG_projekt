@@ -24,22 +24,24 @@ let currentPlayer = "x";
 // Czy gra jest aktywna
 let gameActive = true;
 
-// zmienne zawierające nazwę graczy
+// zmienne zawierające nazwę graczy i PHPSESSID
 let playerOne;
 let playerTwo;
+let phpsessid;
 
 // ciasteczka
 let cookies = document.cookie;
 let cookiesArray = document.cookie.split(";");
-// nazwa pierwszego i drugiego gracza
+// nazwa pierwszego i drugiego gracza oraz PHPSESSID
 for (let i = 0; i < cookiesArray.length; i++) {
     if(cookiesArray[i].includes("player_one")) {
         playerOne = cookiesArray[i].match("(?<=player_one=).*");
     } else if (cookiesArray[i].includes("player_two")) {
         playerTwo = cookiesArray[i].match("(?<=player_two=).*");
+    } else if (cookiesArray[i].includes("PHPSESSID")) {
+        phpsessid = cookiesArray[i].match("(?<=PHPSESSID=).*");
     }
 }
-
 
 // funkcja do zarządzania klliknięciem
 function handleClick(cellEvent) {
@@ -95,24 +97,37 @@ function winningValidation() {
     if (win) {
         if (currentPlayer === 'x') {
             gameStatus.innerHTML = "WYGRYWA " + playerOne + "!!!";
-            cookies = cookies + "; result=" + playerOne;
+            writeResultToCookies('w');
         } else {
             gameStatus.innerHTML = "WYGRYWA " + playerTwo + "!!!";
-            cookies = cookies + "; result=" + playerTwo;
+            writeResultToCookies('l')
         }
         gameActive = false;
-        returnGameState();
         return;
     }
     let draw = !gameState.includes("");
     if (draw) {
         gameStatus.innerHTML = "Remis";
-        cookies = cookies + "; result=draw";
+        writeResultToCookies('d');
         gameActive = false;
-        returnGameState();
         return;
     }
     changePlayer();
+}
+
+// funkcja do zapisywania stanu gry do cookies
+function writeResultToCookies(result) {
+    // PHPSESSID, player_one, player_two
+    cookies = 'PHPSESSID=' + phpsessid + '; player_one=' + playerOne + '; player_two=' + playerTwo + '; ';
+    // gameState (jako f1, f2)
+    for (let i = 0; i < gameState.length; i++) {
+        cookies = cookies + "; f" + i + "=" + gameState[i];
+    }
+    // result (w, l, d)
+    cookies = cookies + "; result=" + result;
+    // time (hh:mm:ss)
+    let date = new Date();
+    cookies = cookies + '; time=' + date.toLocaleTimeString();
 }
 
 // Funkcja do zmiany gracza (kolejki).
@@ -127,13 +142,6 @@ function displayMessage() {
         gameStatus.innerHTML = "Teraz gra " + playerOne;
     } else {
         gameStatus.innerHTML = "Teraz gra " + playerTwo;
-    }
-}
-
-// Funkcja, która zapisuje stan ukończonej rozgrywki do ciasteczek.
-function returnGameState() {
-    for (let i = 0; i < gameState.length; i++) {
-        cookies = cookies + "; f" + i + "=" + gameState[i];
     }
 }
 

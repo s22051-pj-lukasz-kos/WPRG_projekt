@@ -24,7 +24,7 @@ if(!isset($_POST["start_game"])){
     while($row = $znajdz->fetch()) {
         echo "Grałeś z $row";
         foreach ($row as $key => $value) {
-            echo "{$key} => {$value} ";
+            echo "$key => $value ";
         }
 
     }

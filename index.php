@@ -1,33 +1,23 @@
 <?php
-// połącznie z bazą danych
-try {
-    $dbuser = 'root'; $dbpass = null;
-    $db = new PDO("mysql:host=localhost;dbname=wprg_project", $dbuser, $dbpass, array(
-        PDO::ATTR_PERSISTENT => true
-    ));
-} catch (PDOException $PDOException) {
-    print $PDOException;
-}
 
-//// do manipulacji DOM
-//$doc_game = new DOMDocument;
-//$doc_game->validateOnParse = true;
-//$doc_game->loadHTMLFile('game.html');
-
-
-if(!isset($_POST["start_game"])){
-
+if(!isset($_POST["start_game"]) && !isset($_COOKIE['player_one'])){
     include ("header.html");
     include ("form.html");
     include ("footer.html");
-} elseif (isset($_POST["start_game"])){
+} elseif (isset($_POST["start_game"]) && !isset($_COOKIE['result'])) {
     set_game_cookies();
-    include ("header.html");
+    include("header.html");
     include("game.html");
-    include ("footer.html");
-} elseif (isset($_COOKIE['result'])) {
+    include("footer.html");
+} elseif (isset($_POST["start_game"]) && isset($_COOKIE['player_one']) && isset($_COOKIE['result'])) {
+    push_to_db();
     include ("header.html");
-    var_dump($_COOKIE);
+    include ("game.html");
+    include ("footer.html");
+    // NOTE: po resecie odpala tylko to
+} elseif (isset($_COOKIE['player_one']) && !isset($_COOKIE['result'])){
+    include ("header.html");
+    include ("history.html");
     include ("footer.html");
 }
 
@@ -37,20 +27,18 @@ function set_game_cookies() {
     setcookie('player_two', $_POST['player_two']);
 }
 
-//// funkcja od wyświetlania komunikatów
-//function displayMessage($doc_game) {
-//    $game_status = $doc_game->getElementById('queue')->getAttribute('game-status');
-//    $inner_HTML = $doc_game->getElementById('queue');
-//    if($game_status === 'wx') {
-//        $inner_HTML->textContent = "WYGRAŁ {$_POST['player_one']}!!!";
-//    } elseif ($game_status === 'wo') {
-//        $inner_HTML->textContent = "WYGRAŁ {$_POST['player_two']}!!!";
-//    } elseif ($game_status === 'draw') {
-//        $inner_HTML->textContent = "Remis";
-//    } elseif ($game_status === 'x') {
-//        $inner_HTML->textContent = "Teraz gra {$_POST['player_one']}";
-//    } elseif ($game_status === 'o') {
-//        $inner_HTML->textContent = "Teraz gra {$_POST['player_two']}";
-//    }
-//    $doc_game->saveHTMLFile("game.html");
-//}
+// funkcja do umieszczania wyników w bazie danych
+function push_to_db() {
+    try {
+        $dbuser = 'root'; $dbpass = null;
+        $db = new PDO("mysql:host=localhost;dbname=wprg_project", $dbuser, $dbpass, array(
+            PDO::ATTR_PERSISTENT => true
+        ));
+        $zapis = $db->prepare("INSERT INTO games(p1, p2, result, f0, f1, f2, f3, f4, f5, f6, f7, f8) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        $zapis->execute(array($_COOKIE['player_one'], $_COOKIE['player_two'], $_COOKIE['result'],
+            $_COOKIE['f0'], $_COOKIE['f1'], $_COOKIE['f2'], $_COOKIE['f3'], $_COOKIE['f4'],
+            $_COOKIE['f5'], $_COOKIE['f6'], $_COOKIE['f7'], $_COOKIE['f8']));
+    } catch (PDOException $PDOException) {
+        print $PDOException;
+    }
+}
