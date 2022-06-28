@@ -1,18 +1,13 @@
 <?php
-// Formularz logowania. Pojawia się przy braku ciastek lub przy wylogowaniu.
-if(!isset($_POST["start_game"]) || !isset($_COOKIE['player_one']) || isset($_GET['logout'])) {
-//    unset($_POST['start_game']);
-    unset($_POST['player_one']);
-    unset($_POST['player_two']);
-    setcookie('player_one', '', 0);
-    setcookie('player_two', '', 0);
-    unset($_COOKIE['player_one']);
-    unset($_COOKIE['player_two']);
+
+// Jeśli zakończymy grę po jej rozstrzygnięciu
+if (isset($_GET['result']) && isset($_GET['end_game'])) {
+    push_to_db();
     include("header.html");
-    include("form.html");
+    include("history.html");
     include("footer.html");
 } // Jeśli reset gry zawiera result to pchaj do db
-elseif (isset($_GET['reset']) && isset($_GET['result'])) {
+elseif (isset($_GET['result'])) {
     push_to_db();
     include("header.html");
     include("game.html");
@@ -22,18 +17,39 @@ elseif (isset($_GET['reset'])) {
     include("header.html");
     include("game.html");
     include("footer.html");
-} // Gra.
+} // Gra z ekranu konta
+elseif (isset($_GET['game'])) {
+    include("header.html");
+    include("game.html");
+    include("footer.html");
+}// Formularz logowania. Pojawia się przy wylogowaniu.
+elseif(isset($_GET['logout'])){
+    setcookie('player_one', '', 0);
+    setcookie('player_two', '', 0);
+    unset($_COOKIE['player_one']);
+    unset($_COOKIE['player_two']);
+    include("header.html");
+    include("form.html");
+    include("footer.html");
+}// Gra po wypełnieniu formularza
 elseif (isset($_POST["start_game"])) {
     set_game_cookies();
     include("header.html");
     include("game.html");
     include("footer.html");
+} // Formularz logowania. Pojawia się przy braku ciastek.
+elseif(!isset($_COOKIE['player_one'])){
+    include("header.html");
+    include("form.html");
+    include("footer.html");
 } // Zakończenie gry. Wyświetlany jest panel gracza z historią.
-//elseif (isset($_COOKIE['player_one']) || isset($_GET['end_game'])) {
-//    include ("header.html");
-//    include ("history.html");
-//    include ("footer.html");
-//}
+elseif (isset($_COOKIE['player_one']) || isset($_GET['end_game'])) {
+    include ("header.html");
+    include ("history.html");
+    include ("footer.html");
+}
+
+
 
 // funkcja do zapisywania graczy do ciasteczek
 function set_game_cookies() {

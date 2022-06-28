@@ -24,13 +24,12 @@ let currentPlayer = "x";
 // Czy gra jest aktywna
 let gameActive = true;
 
-// zmienne zawierające nazwę graczy i PHPSESSID
+// zmienne zawierające nazwę graczy i rezultat gry
 let playerOne;
 let playerTwo;
-let phpsessid;
+let result = '';
 
 // zmienna do czytania ciasteczek
-let cookies = document.cookie;
 let cookiesArray = document.cookie.split(";");
 // nazwa pierwszego i drugiego gracza oraz PHPSESSID
 for (let i = 0; i < cookiesArray.length; i++) {
@@ -73,8 +72,7 @@ function drawSymbol(clickedCell, clickedCellIndex) {
 Funkcja do sprawdzenia czy gracz wygrał.
 Jeśli nie, zmieniany jest gracz.
 Jednocześnie w wypadku wygranej lub remisu
-przekazuje wynik do atrybutu HTML oraz
-usuwa EventListiner na pola gry.
+przekazuje wynik zmiennej result.
 */
 function winningValidation() {
     let win = false;
@@ -95,10 +93,10 @@ function winningValidation() {
     if (win) {
         if (currentPlayer === 'x') {
             gameStatus.innerHTML = "WYGRYWA " + playerOne + "!!!";
-            writeResultToCookies('w');
+            result = 'w';
         } else {
             gameStatus.innerHTML = "WYGRYWA " + playerTwo + "!!!";
-            writeResultToCookies('l')
+            result = 'l';
         }
         gameActive = false;
         return;
@@ -106,34 +104,12 @@ function winningValidation() {
     let draw = !gameState.includes("");
     if (draw) {
         gameStatus.innerHTML = "Remis";
-        writeResultToCookies('d');
+        result = 'd';
         gameActive = false;
         return;
     }
     changePlayer();
 }
-/*
-Funkcja do zapisywania stanu gry do cookies.
-Funkcja w pierwszej kolejności tworzy ciasteczka
-operując na zmiennej, by potem zapisać całość.
-*/
-// function writeResultToCookies(result) {
-//     // PHPSESSID, player_one, player_two
-//     cookies = 'PHPSESSID=' + phpsessid + '; player_one=' + playerOne + '; player_two=' + playerTwo + '; ';
-//     // gameState (jako f1, f2)
-//     for (let i = 0; i < gameState.length; i++) {
-//         cookies = cookies + "; f" + i + "=" + gameState[i];
-//     }
-//     // result (w, l, d)
-//     cookies = cookies + "; result=" + result;
-//     // time (hh:mm:ss)
-//     // let date = new Date();
-//     // cookies = cookies + '; time=' + date.toLocaleTimeString();
-//     // zapis ciasteczek
-//     document.cookie = cookies;
-// }
-
-
 
 // Funkcja do zmiany gracza (kolejki).
 function changePlayer() {
@@ -150,17 +126,33 @@ function displayMessage() {
     }
 }
 
-// funkcja do resetowania gry
+// funkcja do resetowania gry i przekazywania stanu gry do skryptu PHP przez query string.
 function resetGame() {
+    let queryString = '';
+    // Jeśli gra jest aktywna to tylko zresetuj.
+    if (gameActive) {
+        queryString = 'reset=true';
+        reset();
+    } // jeśli nie jest aktywna to przekaż status gry
+    else {
+        gameActive = true;
+        queryString = resultsToGET();
+        reset();
+    }
+    return queryString;
+}
+
+// Funkcja do resetowania stanu gry
+function reset() {
     // reset gry i kolejki
-    gameActive = true;
+    result = '';
     currentPlayer = "x";
     displayMessage();
     // reset tabeli stanu gry
     for (let i = 0; i < gameState.length; i++) {
         gameState[i] = '';
     }
-    
+
     // usunięcie symboli
     const fields = document.getElementsByClassName("field");
     for (const field of fields) {
@@ -170,17 +162,32 @@ function resetGame() {
     }
 }
 
+// funkcja do generowania query string
+function resultsToGET () {
+    let query = 'result=' + result;
+    for (let i = 0; i < gameState.length; i++) {
+         query = query + "&f" + i + "=" + gameState[i];
+     }
+    return query;
+}
+
 //wyświetl komunikat o kolejce
 displayMessage();
 // Event listener na komórki pola gry
 cells.forEach(cell => cell.addEventListener('click', handleClick));
 
 // event listener na przycisk do resetowania
-const resetButton = document.querySelector(".resetButton");
-resetButton.addEventListener('click', resetGame);
+const resetLink = document.querySelector(".resetLink");
+resetLink.addEventListener('click', () => {
+    let params = "index.php?" + resetGame();
+    resetLink.setAttribute("href", params);
+});
 
-// event listener na przycisk do wylogowania
-const logout = document.querySelector(".logout");
-logout.addEventListener('click', () => {
-   logout.setAttribute("href", "index.php?logout=true");
+// event listener na przycisk do zakończenia gry
+const endGameLink = document.querySelector(".endGame");
+endGameLink.addEventListener('click', () => {
+   if (!gameActive) {
+       let params = "index.php?end_game=true&" + resultsToGET();
+       endGameLink.setAttribute('href', params);
+   }
 });
