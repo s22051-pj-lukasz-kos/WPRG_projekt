@@ -4,6 +4,10 @@ if(!isset($_POST["start_game"]) || !isset($_COOKIE['player_one']) || isset($_GET
 //    unset($_POST['start_game']);
     unset($_POST['player_one']);
     unset($_POST['player_two']);
+    setcookie('player_one', '', 0);
+    setcookie('player_two', '', 0);
+    unset($_COOKIE['player_one']);
+    unset($_COOKIE['player_two']);
     include("header.html");
     include("form.html");
     include("footer.html");

@@ -38,8 +38,6 @@ for (let i = 0; i < cookiesArray.length; i++) {
         playerOne = cookiesArray[i].match("(?<=player_one=).*");
     } else if (cookiesArray[i].includes("player_two")) {
         playerTwo = cookiesArray[i].match("(?<=player_two=).*");
-    } else if (cookiesArray[i].includes("PHPSESSID")) {
-        phpsessid = cookiesArray[i].match("(?<=PHPSESSID=).*");
     }
 }
 
@@ -119,21 +117,23 @@ Funkcja do zapisywania stanu gry do cookies.
 Funkcja w pierwszej kolejności tworzy ciasteczka
 operując na zmiennej, by potem zapisać całość.
 */
-function writeResultToCookies(result) {
-    // PHPSESSID, player_one, player_two
-    cookies = 'PHPSESSID=' + phpsessid + '; player_one=' + playerOne + '; player_two=' + playerTwo + '; ';
-    // gameState (jako f1, f2)
-    for (let i = 0; i < gameState.length; i++) {
-        cookies = cookies + "; f" + i + "=" + gameState[i];
-    }
-    // result (w, l, d)
-    cookies = cookies + "; result=" + result;
-    // time (hh:mm:ss)
-    // let date = new Date();
-    // cookies = cookies + '; time=' + date.toLocaleTimeString();
-    // zapis ciasteczek
-    document.cookie = cookies;
-}
+// function writeResultToCookies(result) {
+//     // PHPSESSID, player_one, player_two
+//     cookies = 'PHPSESSID=' + phpsessid + '; player_one=' + playerOne + '; player_two=' + playerTwo + '; ';
+//     // gameState (jako f1, f2)
+//     for (let i = 0; i < gameState.length; i++) {
+//         cookies = cookies + "; f" + i + "=" + gameState[i];
+//     }
+//     // result (w, l, d)
+//     cookies = cookies + "; result=" + result;
+//     // time (hh:mm:ss)
+//     // let date = new Date();
+//     // cookies = cookies + '; time=' + date.toLocaleTimeString();
+//     // zapis ciasteczek
+//     document.cookie = cookies;
+// }
+
+
 
 // Funkcja do zmiany gracza (kolejki).
 function changePlayer() {
@@ -178,3 +178,9 @@ cells.forEach(cell => cell.addEventListener('click', handleClick));
 // event listener na przycisk do resetowania
 const resetButton = document.querySelector(".resetButton");
 resetButton.addEventListener('click', resetGame);
+
+// event listener na przycisk do wylogowania
+const logout = document.querySelector(".logout");
+logout.addEventListener('click', () => {
+   logout.setAttribute("href", "index.php?logout=true");
+});
