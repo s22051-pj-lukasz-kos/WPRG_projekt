@@ -65,9 +65,9 @@ function push_to_db() {
             PDO::ATTR_PERSISTENT => true
         ));
         $zapis = $db->prepare("INSERT INTO games(p1, p2, result, f0, f1, f2, f3, f4, f5, f6, f7, f8) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-        $zapis->execute(array($_COOKIE['player_one'], $_COOKIE['player_two'], $_COOKIE['result'],
-            $_COOKIE['f0'], $_COOKIE['f1'], $_COOKIE['f2'], $_COOKIE['f3'], $_COOKIE['f4'],
-            $_COOKIE['f5'], $_COOKIE['f6'], $_COOKIE['f7'], $_COOKIE['f8']));
+        $zapis->execute(array($_COOKIE['player_one'], $_COOKIE['player_two'], $_GET['result'],
+            $_GET['f0'], $_GET['f1'], $_GET['f2'], $_GET['f3'], $_GET['f4'],
+            $_GET['f5'], $_GET['f6'], $_GET['f7'], $_GET['f8']));
     } catch (PDOException $PDOException) {
         print $PDOException;
     }
