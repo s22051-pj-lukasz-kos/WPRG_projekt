@@ -1,10 +1,9 @@
 <?php
-
 // Jeśli zakończymy grę po jej rozstrzygnięciu
 if (isset($_GET['result']) && isset($_GET['end_game'])) {
     push_to_db();
     include("header.html");
-    include("history.html");
+    include("history.php");
     include("footer.html");
 } // Jeśli reset gry zawiera result to pchaj do db
 elseif (isset($_GET['result'])) {
@@ -45,11 +44,9 @@ elseif(!isset($_COOKIE['player_one'])){
 } // Zakończenie gry. Wyświetlany jest panel gracza z historią.
 elseif (isset($_COOKIE['player_one']) || isset($_GET['end_game'])) {
     include ("header.html");
-    include ("history.html");
+    include("history.php");
     include ("footer.html");
 }
-
-
 
 // funkcja do zapisywania graczy do ciasteczek
 function set_game_cookies() {

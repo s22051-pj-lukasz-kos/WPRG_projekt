@@ -128,7 +128,7 @@ function displayMessage() {
 
 // funkcja do resetowania gry i przekazywania stanu gry do skryptu PHP przez query string.
 function resetGame() {
-    let queryString = '';
+    let queryString;
     // Jeśli gra jest aktywna to tylko zresetuj.
     if (gameActive) {
         queryString = 'reset=true';
