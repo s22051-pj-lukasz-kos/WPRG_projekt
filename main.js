@@ -29,7 +29,7 @@ let playerOne;
 let playerTwo;
 let phpsessid;
 
-// ciasteczka
+// zmienna do czytania ciasteczek
 let cookies = document.cookie;
 let cookiesArray = document.cookie.split(";");
 // nazwa pierwszego i drugiego gracza oraz PHPSESSID
@@ -114,8 +114,11 @@ function winningValidation() {
     }
     changePlayer();
 }
-
-// funkcja do zapisywania stanu gry do cookies
+/*
+Funkcja do zapisywania stanu gry do cookies.
+Funkcja w pierwszej kolejności tworzy ciasteczka
+operując na zmiennej, by potem zapisać całość.
+*/
 function writeResultToCookies(result) {
     // PHPSESSID, player_one, player_two
     cookies = 'PHPSESSID=' + phpsessid + '; player_one=' + playerOne + '; player_two=' + playerTwo + '; ';
@@ -126,8 +129,10 @@ function writeResultToCookies(result) {
     // result (w, l, d)
     cookies = cookies + "; result=" + result;
     // time (hh:mm:ss)
-    let date = new Date();
-    cookies = cookies + '; time=' + date.toLocaleTimeString();
+    // let date = new Date();
+    // cookies = cookies + '; time=' + date.toLocaleTimeString();
+    // zapis ciasteczek
+    document.cookie = cookies;
 }
 
 // Funkcja do zmiany gracza (kolejki).
